@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Cost of Living Comparison Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .social-links {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 10;
+        }
+        .tip-me-section {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            z-index: 10;
+        }
+        .tip-me-title {
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .tip-me-image {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        .tip-me-image:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .tip-me-placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+            text-align: center;
+            line-height: 1.2;
+        }
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .social-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .social-link.linkedin:hover {
+            background: #0077b5;
+        }
+        .social-link.github:hover {
+            background: #333;
+        }
+        .social-link.portfolio:hover {
+            background: #007bff;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+            animation: float 20s infinite linear;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-100px); }
+        }
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        .header-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 25px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .header-badges {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .source-info {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 25px;
+            border-left: 4px solid #007bff;
+            margin: 20px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .source-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+        .source-icon {
+            font-size: 1.5rem;
+        }
+        .explanation-box {
+            background: rgba(0,123,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid rgba(0,123,255,0.2);
+        }
+        .explanation-box h4 {
+            color: #007bff;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+        .explanation-box p {
+            margin: 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .controls {
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid #dee2e6;
+        }
+        .controls-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .controls-subtitle {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+        .control-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .control-group {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .control-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+            flex-wrap: wrap;
+        }
+        .label-icon {
+            font-size: 1.2rem;
+        }
+        .tooltip {
+            position: relative;
+            cursor: help;
+            color: #6c757d;
+            font-size: 0.8rem;
+        }
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2c3e50;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .tooltip:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 115%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: #2c3e50;
+            z-index: 1000;
+        }
+        .input-hint {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+        .comparison-type {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .radio-option {
+            position: relative;
+        }
+        .radio-option input[type="radio"] {
+            display: none;
+        }
+        .radio-option label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            gap: 5px;
+        }
+        .radio-icon {
+            font-size: 1.5rem;
+        }
+        .radio-option label small {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            font-weight: 400;
+        }
+        .radio-option input[type="radio"]:checked + label {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        .results {
+            padding: 30px;
+        }
+        .result-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+        }
+        .result-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+        .flag {
+            width: 32px;
+            height: 24px;
+            border-radius: 4px;
+            margin-right: 12px;
+            background: #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .country-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .metric {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .metric-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        .comparison-result {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .comparison-result::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+            animation: float 15s infinite linear;
+        }
+        .comparison-result.more-expensive {
+            background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+        }
+        .comparison-result > * {
+            position: relative;
+            z-index: 1;
+        }
+        .comparison-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .comparison-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .multiplier {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin: 15px 0;
+        }
+        .cost-progress {
+            background: rgba(255,255,255,0.2);
+            height: 8px;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .cost-progress-bar {
+            height: 100%;
+            background: rgba(255,255,255,0.8);
+            border-radius: 4px;
+            transition: width 1s ease-in-out;
+            position: relative;
+        }
+        .cost-progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .explanation {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .explanation h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .table-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .table-header h3 {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        .table-header p {
+            color: #6c757d;
+            font-size: 1rem;
+        }
+        .search-container {
+            margin-bottom: 25px;
+        }
+        .search-box {
+            width: 100%;
+            padding: 15px 20px;
+            margin-bottom: 8px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+        .search-hint {
+            font-size: 0.85rem;
+            color: #6c757d;
+            text-align: center;
+            font-style: italic;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .chart-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .chart-section h3 {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        .chart-section p {
+            color: #6c757d;
+            margin-bottom: 25px;
+        }
+        .chart-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 300px;
+            padding: 20px 0;
+            gap: 8px;
+        }
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(to top, #007bff, #28a745);
+            border-radius: 4px 4px 0 0;
+            position: relative;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-height: 20px;
+        }
+        .chart-bar:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+        .chart-bar-label {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: #6c757d;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            white-space: nowrap;
+        }
+        .chart-bar-value {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+        .help-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .help-section h3 {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 25px;
+        }
+        .help-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .help-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        .help-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .help-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        .help-card h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        .help-card p {
+            color: #6c757d;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .example-section {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #2196f3;
+        }
+        .example-section h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        .example-section p {
+            color: #424242;
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        .quick-comparison {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .quick-comparison h3 {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        .quick-comparison p {
+            color: #6c757d;
+            margin-bottom: 25px;
+        }
+        .quick-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .quick-btn {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+        }
+        .quick-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,123,255,0.4);
+            background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+        }
+        .quick-btn:active {
+            transform: translateY(-1px);
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                border-radius: 15px;
+            }
+            .header {
+                padding: 30px 20px;
+            }
+            .social-links {
+                top: 15px;
+                left: 20px;
+                gap: 10px;
+            }
+            .social-link {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+            .tip-me-section {
+                top: 15px;
+                right: 20px;
+            }
+            .tip-me-image {
+                width: 60px;
+                height: 60px;
+            }
+            .tip-me-title {
+                font-size: 0.9rem;
+            }
+            .tip-me-placeholder {
+                font-size: 0.7rem;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+            .header-icon {
+                font-size: 3rem;
+            }
+            .header-badges {
+                gap: 10px;
+            }
+            .badge {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+            .source-info {
+                margin: 15px 20px;
+                padding: 20px;
+            }
+            .controls {
+                padding: 20px;
+            }
+            .control-row {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .control-group {
+                padding: 15px;
+            }
+            .metrics {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .results {
+                padding: 20px;
+            }
+            .chart-bars {
+                height: 250px;
+                gap: 4px;
+            }
+            .chart-bar-label {
+                font-size: 0.7rem;
+                bottom: -35px;
+            }
+            .help-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .help-card {
+                padding: 20px;
+            }
+            .quick-buttons {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .quick-btn {
+                padding: 12px 16px;
+                font-size: 0.9rem;
+            }
+            .table-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            table {
+                font-size: 0.9rem;
+            }
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            .header p {
+                font-size: 1rem;
+            }
+            .controls-title {
+                font-size: 1.3rem;
+            }
+            .chart-section h3,
+            .help-section h3,
+            .quick-comparison h3 {
+                font-size: 1.5rem;
+            }
+            .comparison-title {
+                font-size: 1.2rem;
+            }
+            .multiplier {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="social-links">
+                <a href="https://github.com/Pritam14102006" target="_blank" class="social-link portfolio" title="Portfolio">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M4 6h16v2H4zm0 5h16v6H4zm2 2v2h12v-2H6z"/>
+                        <path d="M2 4h20v16H2V4zm2 2v12h16V6H4z"/>
+                    </svg>
+                </a>
+                <a href="https://www.linkedin.com/in/pritamsur2006/" target="_blank" class="social-link linkedin" title="LinkedIn Profile">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                    </svg>
+                </a>
+                <a href="https://github.com/pritamsur2006" target="_blank" class="social-link github" title="GitHub Profile">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                </a>
+            </div>
+            <div class="tip-me-section">
+                <div class="tip-me-title">TIP ME</div>
+                <div class="tip-me-image">
+                    <div class="tip-me-placeholder">
+                        Upload<br>QR Code
+                    </div>
+                </div>
+            </div>
+            <div class="header-content">
+                <div class="header-icon">🌍</div>
+                <h1 className="mb-4 text-3xl font-bold text-shadow-lg md:text-5xl lg:text-6xl">
+                    Interactive Cost of Living Dashboard
+                  </h1>
+                  <p className="mx-auto mb-8 max-w-2xl text-lg opacity-90 md:text-xl">
+                    Compare purchasing power parity and salary equivalents across countries using real IMF data
+                  </p>
+                <div class="header-badges">
+                    <span class="badge">📊 IMF Data</span>
+                    <span class="badge">🔄 Real-time</span>
+                    <span class="badge">🌐 190+ Countries</span>
+                    <span class="badge">📱 Mobile Responsive</span>
+                </div>
+            </div>
+        </div>
+        <div class="source-info">
+            <div class="source-header">
+                <span class="source-icon">📊</span>
+                <strong>Data Source & Methodology</strong>
+            </div>
+            <p>International Monetary Fund (IMF) World Economic Outlook Database - 
+            <a href="https://www.imf.org/external/datamapper/PPPEX@WEO/OEMDC/ADVEC/WEOWORLD" target="_blank">
+                PPP Exchange Rates (April 2025)
+            </a></p>
+            <div class="explanation-box">
+                <h4>💡 How PPP works?</h4>
+                <p> PPP rates show how much local currency you need to buy the same goods and services as $1 USD can buy in the United States. 
+                    Higher PPP = more expensive country. Our salary calculator uses these rates to show equivalent purchasing power.</p>
+            </div>
+        </div>
+        <div class="controls">
+            <h3 class="controls-title">🔧 Compare Countries</h3>
+            <p class="controls-subtitle">Select countries and salary to compare cost of living</p>
+            
+            <div class="control-row">
+                <div class="control-group">
+                    <label for="baseCountry">
+                        <span class="label-icon">🏠</span>
+                        Base Country (Where you currently live)
+                        <span class="tooltip" data-tooltip="The country where you currently live or earn your salary">ℹ️</span>
+                    </label>
+                    <select id="baseCountry">
+                        <option value="">Choose your country...</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="targetCountry">
+                        <span class="label-icon">🌍</span>
+                        Target Country (Where you want to compare)
+                        <span class="tooltip" data-tooltip="The country you want to compare living costs with">ℹ️</span>
+                    </label>
+                    <select id="targetCountry">
+                        <option value="">Choose comparison country...</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-row">
+                <div class="control-group">
+                    <label for="baseSalary">
+                        <span class="label-icon">💰</span>
+                        Your Current Annual Salary
+                        <span class="tooltip" data-tooltip="Enter your salary in your home country's currency">ℹ️</span>
+                    </label>
+                    <input type="number" id="baseSalary" placeholder="e.g., 50000" min="0" step="100">
+                    <div class="input-hint">Enter amount in your home country's currency</div>
+                </div>
+                <div class="control-group">
+                    <label>
+                        <span class="label-icon">📊</span>
+                        Comparison Method
+                    </label>
+                    <div class="comparison-type">
+                        <div class="radio-option">
+                            <input type="radio" id="ppp" name="comparisonType" value="ppp" checked>
+                            <label for="ppp">
+                                <span class="radio-icon">⚖️</span>
+                                PPP Adjusted
+                                <small>Real purchasing power</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Help Section -->
+        <div class="results">
+            <div class="help-section">
+                <h3>❓ How to Use This Tool</h3>
+                <div class="help-grid">
+                    <div class="help-card">
+                        <div class="help-icon">🏠</div>
+                        <h4>Step 1: Choose Your Country</h4>
+                        <p>Select the country where you currently live or earn your salary. This will be your reference point.</p>
+                    </div>
+                    <div class="help-card">
+                        <div class="help-icon">🌍</div>
+                        <h4>Step 2: Pick Comparison Country</h4>
+                        <p>Choose the country you want to compare living costs with. You can also click on the chart bars above!</p>
+                    </div>
+                    <div class="help-card">
+                        <div class="help-icon">💰</div>
+                        <h4>Step 3: Enter Your Salary</h4>
+                        <p>Type your monthly salary in your home country's currency. The tool will show you the equivalent amount needed in the other country.</p>
+                    </div>
+                    <div class="help-card">
+                        <div class="help-icon">📊</div>
+                        <h4>Step 4: Understand Results</h4>
+                        <p>The comparison shows how much more or less expensive the other country is, and what salary you'd need there for the same lifestyle.</p>
+                    </div>
+                </div>
+                <div class="example-section">
+                    <h4>💡 Example</h4>
+                    <p>If you earn $5,000/month in the USA and want to move to India, you'd only need about $1,200/month to maintain the same purchasing power because India is much cheaper!</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Comparison Section -->
+        <div class="results">
+            <div class="quick-comparison">
+                <h3>⚡ Quick Comparisons</h3>
+                <p>Click on popular country pairs to see instant comparisons</p>
+                <div class="quick-buttons">
+                    <button class="quick-btn" onclick="quickCompare('United States', 'India')">
+                        🇺🇸 → 🇮🇳 USA to India
+                    </button>
+                    <button class="quick-btn" onclick="quickCompare('United States', 'Germany')">
+                        🇺🇸 → 🇩🇪 USA to Germany
+                    </button>
+                    <button class="quick-btn" onclick="quickCompare('United States', 'Japan')">
+                        🇺🇸 → 🇯🇵 USA to Japan
+                    </button>
+                    <button class="quick-btn" onclick="quickCompare('United States', 'Brazil')">
+                        🇺🇸 → 🇧🇷 USA to Brazil
+                    </button>
+                    <button class="quick-btn" onclick="quickCompare('Germany', 'India')">
+                        🇩🇪 → 🇮🇳 Germany to India
+                    </button>
+                    <button class="quick-btn" onclick="quickCompare('United Kingdom', 'Australia')">
+                        🇬🇧 → 🇦🇺 UK to Australia
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="results" id="results"></div>
+        
+        
+            </div>
+        </div>
+        <div class="results">
+            <div class="table-header">
+                <h2>🌍 All Countries PPP Data</h2>
+                <h4>Explore cost of living data for all countries in our database</h4>
+            </div>
+            <div class="search-container">
+                <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search countries...">
+                <div><h4 align="center">Type to filter countries by name</h4></div>
+            </div>
+            <div class="table-container">
+                <table id="countriesTable">
+                    <thead>
+                        <tr>
+                            <th>🏳️ Country</th>
+                            <th>📊 PPP Rate 2024</th>
+                            <th>📈 PPP Rate 2025</th>
+                            <th>💰 Cost vs USA</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        // PPP Data from IMF
+        const countriesData = [{"country": "Afghanistan", "ppp_2024": null, "ppp_2025": null}, {"country": "Albania", "ppp_2024": 42.734, "ppp_2025": 42.674}, {"country": "Algeria", "ppp_2024": 43.133, "ppp_2025": 42.485}, {"country": "Andorra", "ppp_2024": 0.608, "ppp_2025": 0.604}, {"country": "Angola", "ppp_2024": 263.558, "ppp_2025": 308.169}, {"country": "Antigua and Barbuda", "ppp_2024": 1.907, "ppp_2025": 1.923}, {"country": "Argentina", "ppp_2024": 420.076, "ppp_2025": 532.381}, {"country": "Armenia", "ppp_2024": 146.208, "ppp_2025": 146.064}, {"country": "Aruba", "ppp_2024": 1.343, "ppp_2025": 1.329}, {"country": "Australia", "ppp_2024": 1.434, "ppp_2025": 1.423}, {"country": "Austria", "ppp_2024": 0.722, "ppp_2025": 0.727}, {"country": "Azerbaijan", "ppp_2024": 0.493, "ppp_2025": 0.493}, {"country": "The Bahamas", "ppp_2024": 0.963, "ppp_2025": 0.947}, {"country": "Bahrain", "ppp_2024": 0.166, "ppp_2025": 0.16}, {"country": "Bangladesh", "ppp_2024": 29.879, "ppp_2025": 32.129}, {"country": "Barbados", "ppp_2024": 2.234, "ppp_2025": 2.226}, {"country": "Belarus", "ppp_2024": 0.779, "ppp_2025": 0.809}, {"country": "Belgium", "ppp_2024": 0.708, "ppp_2025": 0.707}, {"country": "Belize", "ppp_2024": 1.088, "ppp_2025": 1.082}, {"country": "Benin", "ppp_2024": 202.632, "ppp_2025": 201.631}, {"country": "Bhutan", "ppp_2024": 20.23, "ppp_2025": 20.485}, {"country": "Bolivia", "ppp_2024": 2.393, "ppp_2025": 2.682}, {"country": "Bosnia and Herzegovina", "ppp_2024": 0.698, "ppp_2025": 0.694}, {"country": "Botswana", "ppp_2024": 5.07, "ppp_2025": 5.095}, {"country": "Brazil", "ppp_2024": 2.481, "ppp_2025": 2.502}, {"country": "Brunei Darussalam", "ppp_2024": 0.496, "ppp_2025": 0.489}, {"country": "Bulgaria", "ppp_2024": 0.806, "ppp_2025": 0.831}, {"country": "Burkina Faso", "ppp_2024": 213.77, "ppp_2025": 226.317}, {"country": "Burundi", "ppp_2024": 1023.127, "ppp_2025": 1421.359}, {"country": "Cabo Verde", "ppp_2024": 47.521, "ppp_2025": 47.228}, {"country": "Cambodia", "ppp_2024": 1378.409, "ppp_2025": 1362.136}, {"country": "Cameroon", "ppp_2024": 196.76, "ppp_2025": 197.238}, {"country": "Canada", "ppp_2024": 1.17, "ppp_2025": 1.165}, {"country": "Central African Republic", "ppp_2024": 247.321, "ppp_2025": 253.932}, {"country": "Chad", "ppp_2024": 213.171, "ppp_2025": 209.064}, {"country": "Chile", "ppp_2024": 459.604, "ppp_2025": 464.988}, {"country": "China", "ppp_2024": 3.536, "ppp_2025": 3.434}, {"country": "Colombia", "ppp_2024": 1505.629, "ppp_2025": 1535.671}, {"country": "Comoros", "ppp_2024": 190.92, "ppp_2025": 189.824}, {"country": "Democratic Republic of the Congo", "ppp_2024": 1073.008, "ppp_2025": 1128.003}, {"country": "Republic of Congo", "ppp_2024": 223.908, "ppp_2025": 217.658}, {"country": "Costa Rica", "ppp_2024": 308.556, "ppp_2025": 309.45}, {"country": "C\u00f4te d'Ivoire", "ppp_2024": 215.927, "ppp_2025": 215.682}, {"country": "Croatia", "ppp_2024": 0.456, "ppp_2025": 0.463}, {"country": "Cyprus", "ppp_2024": 0.574, "ppp_2025": 0.587}, {"country": "Czech Republic", "ppp_2024": 12.906, "ppp_2025": 12.929}, {"country": "Denmark", "ppp_2024": 5.86, "ppp_2025": 5.829}, {"country": "Djibouti", "ppp_2024": 82.811, "ppp_2025": 81.99}, {"country": "Dominica", "ppp_2024": 1.366, "ppp_2025": 1.361}, {"country": "Dominican Republic", "ppp_2024": 23.521, "ppp_2025": 23.898}, {"country": "Ecuador", "ppp_2024": 0.424, "ppp_2025": 0.419}, {"country": "Egypt", "ppp_2024": 6.244, "ppp_2025": 7.308}, {"country": "El Salvador", "ppp_2024": 0.421, "ppp_2025": 0.416}, {"country": "Equatorial Guinea", "ppp_2024": 226.601, "ppp_2025": 244.103}, {"country": "Estonia", "ppp_2024": 0.599, "ppp_2025": 0.612}, {"country": "Eswatini", "ppp_2024": 6.301, "ppp_2025": 6.344}, {"country": "Ethiopia", "ppp_2024": 26.552, "ppp_2025": 32.001}, {"country": "Fiji", "ppp_2024": 0.908, "ppp_2025": 0.912}, {"country": "Finland", "ppp_2024": 0.767, "ppp_2025": 0.756}, {"country": "France", "ppp_2024": 0.67, "ppp_2025": 0.662}, {"country": "Gabon", "ppp_2024": 231.292, "ppp_2025": 216.218}, {"country": "The Gambia", "ppp_2024": 18.225, "ppp_2025": 19.113}, {"country": "Georgia", "ppp_2024": 0.88, "ppp_2025": 0.894}, {"country": "Germany", "ppp_2024": 0.717, "ppp_2025": 0.715}, {"country": "Ghana", "ppp_2024": 4.256, "ppp_2025": 4.849}, {"country": "Greece", "ppp_2024": 0.532, "ppp_2025": 0.531}, {"country": "Grenada", "ppp_2024": 1.59, "ppp_2025": 1.569}, {"country": "Guatemala", "ppp_2024": 3.3, "ppp_2025": 3.311}, {"country": "Guinea", "ppp_2024": 3251.739, "ppp_2025": 3357.395}, {"country": "Guinea-Bissau", "ppp_2024": 215.795, "ppp_2025": 216.51}, {"country": "Guyana", "ppp_2024": 77.328, "ppp_2025": 71.506}, {"country": "Haiti", "ppp_2024": 92.081, "ppp_2025": 116.787}, {"country": "Honduras", "ppp_2024": 11.36, "ppp_2025": 11.612}, {"country": "Hong Kong SAR", "ppp_2024": 5.614, "ppp_2025": 5.581}, {"country": "Hungary", "ppp_2024": 182.709, "ppp_2025": 187.435}, {"country": "Iceland", "ppp_2024": 152.192, "ppp_2025": 154.872}, {"country": "India", "ppp_2024": 20.432, "ppp_2025": 20.662}, {"country": "Indonesia", "ppp_2024": 4747.903, "ppp_2025": 4720.371}, {"country": "Islamic Republic of Iran", "ppp_2024": 118411.242, "ppp_2025": 165353.935}, {"country": "Iraq", "ppp_2024": 527.912, "ppp_2025": 485.49}, {"country": "Ireland", "ppp_2024": 0.76, "ppp_2025": 0.755}, {"country": "Israel", "ppp_2024": 3.718, "ppp_2025": 3.75}, {"country": "Italy", "ppp_2024": 0.608, "ppp_2025": 0.605}, {"country": "Jamaica", "ppp_2024": 95.392, "ppp_2025": 98.279}, {"country": "Japan", "ppp_2024": 93.32, "ppp_2025": 92.638}, {"country": "Jordan", "ppp_2024": 0.303, "ppp_2025": 0.302}, {"country": "Kazakhstan", "ppp_2024": 159.911, "ppp_2025": 170.765}, {"country": "Kenya", "ppp_2024": 44.007, "ppp_2025": 44.483}, {"country": "Kiribati", "ppp_2024": 1.038, "ppp_2025": 1.036}, {"country": "Korea", "ppp_2024": 785.641, "ppp_2025": 775.488}, {"country": "Kosovo", "ppp_2024": 0.342, "ppp_2025": 0.339}, {"country": "Kuwait", "ppp_2024": 0.195, "ppp_2025": 0.18}, {"country": "Kyrgyz Republic", "ppp_2024": 26.324, "ppp_2025": 27.791}, {"country": "Lao P.D.R.", "ppp_2024": 4569.369, "ppp_2025": 4760.037}, {"country": "Latvia", "ppp_2024": 0.506, "ppp_2025": 0.508}, {"country": "Lebanon", "ppp_2024": 40091.338, "ppp_2025": null}, {"country": "Lesotho", "ppp_2024": 6.252, "ppp_2025": 6.318}, {"country": "Liberia", "ppp_2024": 0.456, "ppp_2025": 0.453}, {"country": "Libya", "ppp_2024": 1.984, "ppp_2025": 1.881}, {"country": "Lithuania", "ppp_2024": 0.5, "ppp_2025": 0.501}, {"country": "Luxembourg", "ppp_2024": 0.857, "ppp_2025": 0.856}, {"country": "Macao SAR", "ppp_2024": 4.577, "ppp_2025": 4.551}, {"country": "Madagascar", "ppp_2024": 1309.396, "ppp_2025": 1381.966}, {"country": "Malawi", "ppp_2024": 504.8, "ppp_2025": 603.924}, {"country": "Malaysia", "ppp_2024": 1.402, "ppp_2025": 1.401}, {"country": "Maldives", "ppp_2024": 7.718, "ppp_2025": 7.669}, {"country": "Mali", "ppp_2024": 203.942, "ppp_2025": 202.638}, {"country": "Malta", "ppp_2024": 0.555, "ppp_2025": 0.554}, {"country": "Marshall Islands", "ppp_2024": 1.051, "ppp_2025": 1.057}, {"country": "Mauritania", "ppp_2024": 11.233, "ppp_2025": 11.279}, {"country": "Mauritius", "ppp_2024": 17.746, "ppp_2025": 17.784}, {"country": "Mexico", "ppp_2024": 10.225, "ppp_2025": 10.453}, {"country": "Micronesia", "ppp_2024": 1.085, "ppp_2025": 1.11}, {"country": "Moldova", "ppp_2024": 7.197, "ppp_2025": 7.64}, {"country": "Mongolia", "ppp_2024": 1187.784, "ppp_2025": 1251.428}, {"country": "Montenegro", "ppp_2024": 0.369, "ppp_2025": 0.373}, {"country": "Morocco", "ppp_2024": 3.878, "ppp_2025": 3.864}, {"country": "Mozambique", "ppp_2024": 23.824, "ppp_2025": 24.825}, {"country": "Myanmar", "ppp_2024": 504.159, "ppp_2025": 523.036}, {"country": "Namibia", "ppp_2024": 6.921, "ppp_2025": 7.054}, {"country": "Nauru", "ppp_2024": 1.729, "ppp_2025": 1.769}, {"country": "Nepal", "ppp_2024": 34.154, "ppp_2025": 34.889}, {"country": "Netherlands", "ppp_2024": 0.774, "ppp_2025": 0.774}, {"country": "New Zealand", "ppp_2024": 1.481, "ppp_2025": 1.485}, {"country": "Nicaragua", "ppp_2024": 11.975, "ppp_2025": 12.132}, {"country": "Niger", "ppp_2024": 215.896, "ppp_2025": 218.302}, {"country": "Nigeria", "ppp_2024": 185.192, "ppp_2025": 200.261}, {"country": "North Macedonia", "ppp_2024": 18.845, "ppp_2025": 19.166}, {"country": "Norway", "ppp_2024": 8.985, "ppp_2025": 8.924}, {"country": "Oman", "ppp_2024": 0.187, "ppp_2025": 0.174}, {"country": "Pakistan", "ppp_2024": 66.568, "ppp_2025": 69.052}, {"country": "Palau", "ppp_2024": 1.032, "ppp_2025": 1.035}, {"country": "Panama", "ppp_2024": 0.468, "ppp_2025": 0.458}, {"country": "Papua New Guinea", "ppp_2024": 2.728, "ppp_2025": 2.8}, {"country": "Paraguay", "ppp_2024": 2597.273, "ppp_2025": 2620.557}, {"country": "Peru", "ppp_2024": 1.782, "ppp_2025": 1.767}, {"country": "Philippines", "ppp_2024": 19.357, "ppp_2025": 19.266}, {"country": "Poland", "ppp_2024": 1.9, "ppp_2025": 1.926}, {"country": "Portugal", "ppp_2024": 0.557, "ppp_2025": 0.557}, {"country": "Puerto Rico", "ppp_2024": 0.765, "ppp_2025": 0.76}, {"country": "Qatar", "ppp_2024": 2.241, "ppp_2025": 2.145}, {"country": "Romania", "ppp_2024": 1.987, "ppp_2025": 2.027}, {"country": "Russia", "ppp_2024": 28.97, "ppp_2025": 29.754}, {"country": "Rwanda", "ppp_2024": 355.411, "ppp_2025": 366.087}, {"country": "Samoa", "ppp_2024": 1.971, "ppp_2025": 1.98}, {"country": "San Marino", "ppp_2024": 0.693, "ppp_2025": 0.69}, {"country": "S\u00e3o Tom\u00e9 and Pr\u00edncipe", "ppp_2024": 12.272, "ppp_2025": 13.184}, {"country": "Saudi Arabia", "ppp_2024": 1.93, "ppp_2025": 1.823}, {"country": "Senegal", "ppp_2024": 210.548, "ppp_2025": 209.202}, {"country": "Serbia", "ppp_2024": 47.346, "ppp_2025": 48.116}, {"country": "Seychelles", "ppp_2024": 7.845, "ppp_2025": 7.744}, {"country": "Sierra Leone", "ppp_2024": 5714.907, "ppp_2025": 6118.479}, {"country": "Singapore", "ppp_2024": 0.804, "ppp_2025": 0.794}, {"country": "Slovak Republic", "ppp_2024": 0.526, "ppp_2025": 0.531}, {"country": "Slovenia", "ppp_2024": 0.567, "ppp_2025": 0.566}, {"country": "Solomon Islands", "ppp_2024": 7.249, "ppp_2025": 7.342}, {"country": "Somalia", "ppp_2024": 0.399, "ppp_2025": 0.4}, {"country": "South Africa", "ppp_2024": 7.415, "ppp_2025": 7.491}, {"country": "South Sudan", "ppp_2024": 1049.746, "ppp_2025": 1748.805}, {"country": "Spain", "ppp_2024": 0.596, "ppp_2025": 0.594}, {"country": "Sri Lanka", "ppp_2024": 87.268, "ppp_2025": null}, {"country": "St. Kitts and Nevis", "ppp_2024": 1.803, "ppp_2025": 1.74}, {"country": "St. Lucia", "ppp_2024": 1.376, "ppp_2025": 1.357}, {"country": "St. Vincent and the Grenadines", "ppp_2024": 1.423, "ppp_2025": 1.415}, {"country": "Sudan", "ppp_2024": 484.814, "ppp_2025": 954.072}, {"country": "Suriname", "ppp_2024": 10.584, "ppp_2025": 11.1}, {"country": "Sweden", "ppp_2024": 8.431, "ppp_2025": 8.386}, {"country": "Switzerland", "ppp_2024": 0.969, "ppp_2025": 0.947}, {"country": "Taiwan Province of China", "ppp_2024": 13.495, "ppp_2025": 13.38}, {"country": "Tajikistan", "ppp_2024": 2.558, "ppp_2025": 2.616}, {"country": "Tanzania", "ppp_2024": 772.452, "ppp_2025": 784.705}, {"country": "Thailand", "ppp_2024": 10.488, "ppp_2025": 10.279}, {"country": "Timor-Leste", "ppp_2024": 0.304, "ppp_2025": 0.303}, {"country": "Togo", "ppp_2024": 193.862, "ppp_2025": 192.623}, {"country": "Tonga", "ppp_2024": 1.686, "ppp_2025": 1.701}, {"country": "Trinidad and Tobago", "ppp_2024": 3.503, "ppp_2025": 3.457}, {"country": "Tunisia", "ppp_2024": 0.936, "ppp_2025": 0.971}, {"country": "T\u00fcrkiye", "ppp_2024": 12.533, "ppp_2025": 16.45}, {"country": "Turkmenistan", "ppp_2024": 1.629, "ppp_2025": 1.675}, {"country": "Tuvalu", "ppp_2024": 1.501, "ppp_2025": 1.486}, {"country": "Uganda", "ppp_2024": 1237.947, "ppp_2025": 1267.867}, {"country": "Ukraine", "ppp_2024": 11.605, "ppp_2025": 12.662}, {"country": "United Arab Emirates", "ppp_2024": 2.326, "ppp_2025": 2.226}, {"country": "United Kingdom", "ppp_2024": 0.665, "ppp_2025": 0.669}, {"country": "United States", "ppp_2024": 1.0, "ppp_2025": 1.0}, {"country": "Uruguay", "ppp_2024": 26.398, "ppp_2025": 27.122}, {"country": "Uzbekistan", "ppp_2024": 3365.594, "ppp_2025": 3710.272}, {"country": "Vanuatu", "ppp_2024": 135.056, "ppp_2025": 136.387}, {"country": "Venezuela", "ppp_2024": 21.69, "ppp_2025": 55.815}, {"country": "Vietnam", "ppp_2024": 6956.919, "ppp_2025": 7020.848}, {"country": "West Bank and Gaza", "ppp_2024": null, "ppp_2025": null}, {"country": "Yemen", "ppp_2024": 501.984, "ppp_2025": 588.938}, {"country": "Zambia", "ppp_2024": 7.651, "ppp_2025": 8.385}, {"country": "Zimbabwe", "ppp_2024": 6.837, "ppp_2025": 12.247}];
+        let allCountries = [];
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCountriesData();
+            setupEventListeners();
+            populateTable();
+            createChart();
+        });
+        function loadCountriesData() {
+            // Filter out countries without data
+            allCountries = countriesData.filter(country => 
+                country.ppp_2024 !== null || country.ppp_2025 !== null
+            );
+            populateCountrySelects();
+        }
+
+        function populateCountrySelects() {
+            const baseSelect = document.getElementById('baseCountry');
+            const targetSelect = document.getElementById('targetCountry');
+            allCountries.forEach(country => {
+                const option1 = new Option(country.country, country.country);
+                const option2 = new Option(country.country, country.country);
+                baseSelect.add(option1);
+                targetSelect.add(option2);
+            });
+            // Set default selections
+            baseSelect.value = 'United States';
+            targetSelect.value = 'India';
+        }
+        function setupEventListeners() {
+            document.getElementById('baseCountry').addEventListener('change', calculateComparison);
+            document.getElementById('targetCountry').addEventListener('change', calculateComparison);
+            document.getElementById('baseSalary').addEventListener('input', calculateComparison);
+            document.querySelectorAll('input[name="comparisonType"]').forEach(radio => {
+                radio.addEventListener('change', calculateComparison);
+            });
+            document.getElementById('searchBox').addEventListener('input', filterTable);
+        }
+        function calculateComparison() {
+            const baseCountryName = document.getElementById('baseCountry').value;
+            const targetCountryName = document.getElementById('targetCountry').value;
+            const baseSalary = parseFloat(document.getElementById('baseSalary').value) || 0;
+            const comparisonType = document.querySelector('input[name="comparisonType"]:checked').value;
+            
+            if (!baseCountryName || !targetCountryName) {
+                document.getElementById('results').innerHTML = '';
+                return;
+            }
+            
+            // Show loading state
+            showLoading();
+            
+            // Simulate a small delay for better UX
+            setTimeout(() => {
+                const baseCountry = allCountries.find(c => c.country === baseCountryName);
+                const targetCountry = allCountries.find(c => c.country === targetCountryName);
+                
+                if (!baseCountry || !targetCountry) {
+                    showError('Selected countries not found in database');
+                    return;
+                }
+                
+                displayComparison(baseCountry, targetCountry, baseSalary, comparisonType);
+            }, 300);
+        }
+        
+        function showLoading() {
+            document.getElementById('results').innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Calculating comparison...</p>
+                </div>
+            `;
+        }
+        function displayComparison(baseCountry, targetCountry, baseSalary, comparisonType) {
+            const basePPP2025 = baseCountry.ppp_2025 || baseCountry.ppp_2024;
+            const targetPPP2025 = targetCountry.ppp_2025 || targetCountry.ppp_2024;
+            if (!basePPP2025 || !targetPPP2025) {
+                showError('PPP data not available for selected countries');
+                return;
+            }
+            // Calculate cost multiplier
+            let costMultiplier;
+            let adjustedSalary = 0;
+            let explanation = '';
+            if (comparisonType === 'ppp') {
+                // PPP-adjusted comparison
+                costMultiplier = targetPPP2025 / basePPP2025;
+                adjustedSalary = baseSalary * costMultiplier;
+                explanation = `PPP-adjusted comparison: Takes into account the relative cost of living. A salary of ${baseSalary.toLocaleString()} in ${baseCountry.country} has the same purchasing power as ${adjustedSalary.toLocaleString()} in ${targetCountry.country}.`;
+            } else {
+                // Nominal comparison (simplified, using PPP as proxy for cost differences)
+                costMultiplier = targetPPP2025 / basePPP2025;
+                adjustedSalary = baseSalary * costMultiplier;
+                explanation = `Nominal comparison: Based on currency conversion factors. This shows the relative value without purchasing power adjustment.`;
+            }
+            const isMoreExpensive = costMultiplier > 1;
+            const percentDifference = Math.abs((costMultiplier - 1) * 100);
+            const resultsHTML = `
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="flag">${getCountryFlag(baseCountry.country)}</div>
+                        <div class="country-name">${baseCountry.country}</div>
+                    </div>
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-label">PPP Rate 2025</div>
+                            <div class="metric-value">${basePPP2025.toFixed(3)}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Your Salary</div>
+                            <div class="metric-value">${baseSalary.toLocaleString()}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="comparison-result ${isMoreExpensive ? 'more-expensive' : ''}">
+                    <div class="comparison-title">
+                        ${targetCountry.country} is ${isMoreExpensive ? 'MORE' : 'LESS'} expensive
+                    </div>
+                    <div class="multiplier">${costMultiplier.toFixed(2)}x</div>
+                    <div class="cost-progress">
+                        <div class="cost-progress-bar" style="width: ${Math.min(percentDifference, 100)}%"></div>
+                    </div>
+                    <div class="comparison-subtitle">
+                        ${percentDifference.toFixed(1)}% ${isMoreExpensive ? 'more expensive' : 'cheaper'} than ${baseCountry.country}
+                    </div>
+                </div>
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="flag">${getCountryFlag(targetCountry.country)}</div>
+                        <div class="country-name">${targetCountry.country}</div>
+                    </div>
+                    <div class="metrics">
+                        <div class="metric">
+                            <div class="metric-label">PPP Rate 2025</div>
+                            <div class="metric-value">${targetPPP2025.toFixed(3)}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Equivalent Salary in the Target country</div>
+                            <div class="metric-value">${adjustedSalary.toLocaleString()}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('results').innerHTML = resultsHTML;
+        }
+        function populateTable() {
+            const tableBody = document.getElementById('tableBody');
+            const usaPPP = 1.000; // USA is the base
+            allCountries.forEach(country => {
+                const ppp2025 = country.ppp_2025 || country.ppp_2024 || 0;
+                const costVsUSA = ppp2025 / usaPPP;
+                const costPercentage = ((costVsUSA - 1) * 100).toFixed(1);
+                const costText = costVsUSA > 1 ? 
+                    `${costPercentage}% more expensive` : 
+                    `${Math.abs(costPercentage)}% cheaper`;
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td>${getCountryFlag(country.country)} ${country.country}</td>
+                    <td>${country.ppp_2024 ? country.ppp_2024.toFixed(3) : 'N/A'}</td>
+                    <td>${country.ppp_2025 ? country.ppp_2025.toFixed(3) : 'N/A'}</td>
+                    <td>${costText}</td>
+                `;
+            });
+        }
+        function filterTable() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach(row => {
+                const countryName = row.cells[0].textContent.toLowerCase();
+                row.style.display = countryName.includes(searchTerm) ? '' : 'none';
+            });
+        }
+        function getCountryFlag(countryName) {
+            // Simple flag representation using country codes
+            const flagMap = {
+                'United States': '🇺🇸',
+                'India': '🇮🇳',
+                'China': '🇨🇳',
+                'Germany': '🇩🇪',
+                'United Kingdom': '🇬🇧',
+                'France': '🇫🇷',
+                'Japan': '🇯🇵',
+                'Canada': '🇨🇦',
+                'Australia': '🇦🇺',
+                'Brazil': '🇧🇷',
+                'Russia': '🇷🇺',
+                'Mexico': '🇲🇽',
+                'South Korea': '🇰🇷',
+                'Italy': '🇮🇹',
+                'Spain': '🇪🇸',
+                'Netherlands': '🇳🇱',
+                'Switzerland': '🇨🇭',
+                'Sweden': '🇸🇪',
+                'Norway': '🇳🇴',
+                'Denmark': '🇩🇰'
+            };
+            return flagMap[countryName] || '🏳️';
+        }
+        function createChart() {
+            const chartBars = document.getElementById('chartBars');
+            if (!chartBars) return;
+            
+            // Get top 10 countries with highest PPP rates (most expensive)
+            const sortedCountries = allCountries
+                .filter(country => country.ppp_2025 !== null)
+                .sort((a, b) => (b.ppp_2025 || b.ppp_2024) - (a.ppp_2025 || a.ppp_2024))
+                .slice(0, 10);
+            
+            const maxPPP = Math.max(...sortedCountries.map(c => c.ppp_2025 || c.ppp_2024));
+            
+            chartBars.innerHTML = '';
+            
+            sortedCountries.forEach((country, index) => {
+                const ppp = country.ppp_2025 || country.ppp_2024;
+                const height = (ppp / maxPPP) * 100;
+                
+                const bar = document.createElement('div');
+                bar.className = 'chart-bar';
+                bar.style.height = height + '%';
+                bar.innerHTML = `
+                    <div class="chart-bar-value">${ppp.toFixed(1)}</div>
+                    <div class="chart-bar-label">${country.country}</div>
+                `;
+                
+                // Add click event to select this country
+                bar.addEventListener('click', () => {
+                    document.getElementById('targetCountry').value = country.country;
+                    calculateComparison();
+                });
+                
+                chartBars.appendChild(bar);
+            });
+        }
+        
+        function quickCompare(baseCountry, targetCountry) {
+            // Set the countries
+            document.getElementById('baseCountry').value = baseCountry;
+            document.getElementById('targetCountry').value = targetCountry;
+            
+            // Set a default salary if none is set
+            const currentSalary = document.getElementById('baseSalary').value;
+            if (!currentSalary || currentSalary === '0') {
+                document.getElementById('baseSalary').value = '50000';
+            }
+            
+            // Calculate the comparison
+            calculateComparison();
+            
+            // Scroll to results
+            document.getElementById('results').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+        
+        function showError(message) {
+            document.getElementById('results').innerHTML = `
+                <div class="error">
+                    <strong>Error:</strong> ${message}
+                </div>
+            `;
+        }
+        // Initialize with default comparison
+        setTimeout(() => {
+            document.getElementById('baseSalary').value = '50000';
+            calculateComparison();
+        }, 500);
+    </script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+/* Enhanced styles for the Cost of Living Dashboard */
+.advanced-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+input:checked + .slider {
+    background-color: #007bff;
+}
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+.currency-converter {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin: 20px 0;
+}
+.converter-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 20px;
+    align-items: center;
+    margin-top: 15px;
+}
+.converter-input {
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    text-align: center;
+}
+.converter-input::placeholder {
+    color: rgba(255,255,255,0.7);
+}
+.swap-button {
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.3);
+    color: white;
+    padding: 15px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+.swap-button:hover {
+    background: rgba(255,255,255,0.3);
+    transform: rotate(180deg);
+}
+.chart-container {
+    background: white;
+    padding: 30px;
+    margin: 20px 0;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+.chart-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-align: center;
+}
+.bar-chart {
+    display: flex;
+    align-items: flex-end;
+    height: 300px;
+    padding: 20px 0;
+    gap: 5px;
+}
+.bar {
+    flex: 1;
+    background: linear-gradient(to top, #007bff, #28a745);
+    border-radius: 4px 4px 0 0;
+    position: relative;
+    transition: all 0.3s ease;
+}
+.bar:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
+}
+.bar-label {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8rem;
+    color: #6c757d;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+}
+.bar-value {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+.export-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+}
+.export-btn {
+    background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+.export-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+.favorites {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+}
+.favorites h4 {
+    color: #856404;
+    margin-bottom: 15px;
+}
+.favorite-item {
+    display: inline-block;
+    background: white;
+    padding: 8px 15px;
+    margin: 5px;
+    border-radius: 20px;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.favorite-item:hover {
+    background: #007bff;
+    color: white;
+}
